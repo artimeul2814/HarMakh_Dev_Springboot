@@ -37,7 +37,7 @@ pipeline {
           sh "docker build -t ${buildTag} ."
         // Deploy using docker-compose with env override
 	  writeFile file: 'deploy.env', text: "SPRINGBOOT_IMAGE_TAG=${buildTag}"
-	  sh "docker-compose --env-file deploy.env -f docker-compose.yml up -d --force-recreate"
+	  sh "docker compose --env-file deploy.env -f docker-compose.yml up -d --force-recreate"
 	}
       }
     }
