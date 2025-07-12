@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  apache:
+    image: httpd:2.4
+    container_name: apache_dev
+    ports:
+      - "8088:80"
+    volumes:
+      - ./html:/usr/local/apache2/htdocs/
+      - ./apache-sites:/usr/local/apache2/conf/sites-available/
+      - ./httpd.conf:/usr/local/apache2/conf/httpd.conf
+    networks:
+      - devnet
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    container_name: dev-nginx
+    ports:
+      - "9080:80"    # External 9080 → Internal 80
+      - "9443:443"   # External 9443 → Internal 443
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/ssl:ro  # Optional: for SSL certs
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+    depends_on:
+      - keycloak
+      - springboot
+      - apache
+    networks:
+      - devnet
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.4
+    container_name: keycloak_dev
+    command:
+      - start-dev
+      - --spi-theme-static-max-age=-1
+      - --spi-theme-cache-themes=false
+      - --spi-theme-cache-templates=false
+      - --proxy-headers=xforwarded
+      - --hostname-strict=false
+      - --hostname-strict-https=false
+      - --hostname-url=http://login.harmakhind.com:9080
+      - --hostname-admin-url=http://login.harmakhind.com:9080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+    ports:
+      - "8081:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./keyclk_themes/login_pg_themes:/opt/keycloak/themes/login_pg_themes
+    networks:
+      - devnet
+    restart: unless-stopped
+
+  springboot:
+    build:
+      context: ./springboot
+      dockerfile: Dockerfile
+    image: dev-springboot:devfresh
+    container_name: dev-springboot
+    ports:
+      - "8082:8080"
+    networks:
+      - devnet
+    restart: unless-stopped
+
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: jenkins
+    ports:
+      - "8080:8080"     # Jenkins UI
+      - "50000:50000"   # Agent port
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  keycloak_data:
+  jenkins_home:
+
+networks:
+   devnet:
+     driver: bridge
+     name: devnet
+
