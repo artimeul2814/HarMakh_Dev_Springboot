@@ -9,7 +9,8 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git url: 'git@github.com:artimeul2814/HarMakh-Springboot-file-expl.git', credentialsId: 'your-ssh-creds-id'
+        git url: 'git@github.com:artimeul2814/HarMakh_Dev_Springboot.git' , credentialsId: 'your-ssh-creds-id', branch: 'dev'
+
       }
     }
 
