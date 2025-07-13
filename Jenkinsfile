@@ -13,7 +13,7 @@ pipeline {
     }
     stage('Checkout') {
       steps {
-        git url: 'git@github.com:artimeul2814/HarMakh_Dev_Springboot.git' , credentialsId: 'your-ssh-creds-id', branch: 'dev'
+        git url: 'git@github.com:artimeul2814/HarMakh_Dev_Springboot.git' , credentialsId: 'git-ssh-key', branch: 'dev'
 	checkout scm
       }
     }
