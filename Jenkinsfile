@@ -5,11 +5,7 @@ pipeline {
     IMAGE_NAME = "dev-springboot"
     IMAGE_TAG  = "devfresh"
   }
- stages {
-    stage('Clean Workspace') {
-      steps {
-        deleteDir()
-      }
+ stages{
     stage('Checkout') {
       steps {
         git url: 'git@github.com:artimeul2814/HarMakh_Dev_Springboot.git' , credentialsId: 'your-ssh-creds-id', branch: 'dev'
