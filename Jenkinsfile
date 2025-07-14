@@ -28,6 +28,10 @@ pipeline {
       steps {
         sh '''
 	  ls -lh target/*.jar
+	  if [ ! -f target/*.jar ]; then
+    	    echo "❌ JAR not found — did Maven fail silently?"
+    	    exit 1
+  	  fi
           docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
         '''
       }
